@@ -4,6 +4,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VariantBot.ChannelHandlers;
 
 namespace VariantBot
 {
@@ -18,8 +19,10 @@ namespace VariantBot
                 .AddNewtonsoftJson();
 
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
-            
             services.AddTransient<IBot, Bots.VariantBot>();
+            
+            services.AddTransient<SlackHandler, SlackHandler>();
+            services.AddHttpClient();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
