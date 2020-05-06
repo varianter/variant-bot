@@ -22,7 +22,6 @@ namespace VariantBot
             services.AddTransient<IBot, Bots.VariantBot>();
             
             services.AddTransient<SlackHandler, SlackHandler>();
-            services.AddHttpClient();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
