@@ -57,8 +57,8 @@ namespace VariantBot.Controllers
         {
             if (!await RequestHasValidSignature())
                 return Unauthorized();
-
-            return NotFound();
+            
+            return BadRequest();
         }
 
         private async Task<bool> RequestHasValidSignature()
