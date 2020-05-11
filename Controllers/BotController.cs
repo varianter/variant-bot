@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using VariantBot.ChannelHandlers;
 
 namespace VariantBot.Controllers
 {
@@ -35,21 +38,22 @@ namespace VariantBot.Controllers
     public class ActionsController : ControllerBase
     {
         private readonly ILogger<ActionsController> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ActionsController(ILogger<ActionsController> logger)
+        public ActionsController(ILogger<ActionsController> logger, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
         public class SlackInteractionFormBody
         {
             public string Payload { get; set; }
-            
-            public string  Text { get; set; }
-            public string  Command { get; set; }
-            
-            [FromForm(Name = "response_url")]
-            public string  ResponseUrl { get; set; }
+
+            public string Text { get; set; }
+            public string Command { get; set; }
+
+            [FromForm(Name = "response_url")] public string ResponseUrl { get; set; }
         }
 
         [HttpPost]
@@ -57,7 +61,57 @@ namespace VariantBot.Controllers
         {
             if (!await RequestHasValidSignature())
                 return Unauthorized();
-            
+
+            if (!string.IsNullOrWhiteSpace(slackInteractionFormBody.Command))
+            {
+                // Handle commands
+                switch (slackInteractionFormBody.Command)
+                {
+                    case "/info":
+                    {
+                        EphemeralSlackMessageBody ephemeralMessage;
+                        if (!string.IsNullOrWhiteSpace(slackInteractionFormBody.Text)
+                            && slackInteractionFormBody.Text.Equals("wifi"))
+                        {
+                            ephemeralMessage = SlackHandler
+                                .CreateSimpleTextEphemeralMessage(
+                                    Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
+                            await SlackHandler.PostEphemeralSlackMessage(_httpClientFactory.CreateClient(),
+                                ephemeralMessage, slackInteractionFormBody.ResponseUrl);
+                            return Ok();
+                        }
+
+                        ephemeralMessage = SlackHandler.CreateInfoCommandEphemeralMessage();
+                        await SlackHandler.PostEphemeralSlackMessage(
+                            _httpClientFactory.CreateClient(), ephemeralMessage, slackInteractionFormBody.ResponseUrl);
+                        return Ok();
+                    }
+                }
+            }
+
+            else if (!string.IsNullOrWhiteSpace(slackInteractionFormBody.Payload))
+            {
+                // Handle message interactions
+                var jsonPayload = JObject.Parse(slackInteractionFormBody.Payload);
+                var interactionValue = jsonPayload["actions"][0]["value"].Value<string>();
+
+                if (string.IsNullOrWhiteSpace(interactionValue))
+                    return BadRequest();
+
+                switch (interactionValue)
+                {
+                    case "wifi":
+                    {
+                        var ephemeralMessage = SlackHandler
+                            .CreateSimpleTextEphemeralMessage(
+                                Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
+                        await SlackHandler.PostEphemeralSlackMessage(_httpClientFactory.CreateClient(),
+                            ephemeralMessage, jsonPayload["response_url"].Value<string>());
+                        return Ok();
+                    }
+                }
+            }
+
             return BadRequest();
         }
 
