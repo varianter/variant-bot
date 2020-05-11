@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,12 @@ namespace VariantBot
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            app.UseDefaultFiles()
+            app.Use((context, next) =>
+                {
+                    context.Request.EnableBuffering();
+                    return next();
+                })
+                .UseDefaultFiles()
                 .UseStaticFiles()
                 .UseWebSockets()
                 .UseRouting()
