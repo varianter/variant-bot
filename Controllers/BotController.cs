@@ -41,8 +41,19 @@ namespace VariantBot.Controllers
             _logger = logger;
         }
 
+        public class SlackInteractionFormBody
+        {
+            public string Payload { get; set; }
+            
+            public string  Text { get; set; }
+            public string  Command { get; set; }
+            
+            [FromForm(Name = "response_url")]
+            public string  ResponseUrl { get; set; }
+        }
+
         [HttpPost]
-        public async Task<IActionResult> PostAsync()
+        public async Task<IActionResult> PostAsync([FromForm] SlackInteractionFormBody slackInteractionFormBody)
         {
             if (!await RequestHasValidSignature())
                 return Unauthorized();
