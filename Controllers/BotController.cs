@@ -42,20 +42,19 @@ namespace VariantBot.Controllers
         }
 
         [HttpPost]
-        public async Task PostAsync()
+        public async Task<IActionResult> PostAsync()
+        {
+            if (!await RequestHasValidSignature())
+                return Unauthorized();
+
+            return NotFound();
+        }
+
+        private async Task<bool> RequestHasValidSignature()
         {
             using var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
-
-            if (!RequestHasValidSignature(requestBody))
-            {
-                _logger.LogError("Invalid or missing Slack signature");
-                return;
-            }
-        }
-
-        private bool RequestHasValidSignature(string requestBody)
-        {
+            
             string slackSignatureHeader = Request.Headers["X-Slack-Signature"];
             if (string.IsNullOrWhiteSpace(slackSignatureHeader))
                 return false;
@@ -72,7 +71,12 @@ namespace VariantBot.Controllers
 
             var signature = GetSignature(signatureBase, signatureSecret);
 
-            return signature.Equals(slackSignature);
+            var requestHasValidSignature = signature.Equals(slackSignature);
+            if (requestHasValidSignature)
+                return true;
+            
+            _logger.LogError("Invalid or missing Slack signature");
+            return false;
         }
 
         private static string GetSignature(string signatureBase, string signatureSecret)
