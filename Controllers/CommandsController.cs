@@ -29,7 +29,6 @@ namespace VariantBot.Controllers
             if (string.IsNullOrWhiteSpace(slackCommandFormBody.Command))
                 return BadRequest();
 
-            // Handle commands
             switch (slackCommandFormBody.Command)
             {
                 case "/info":
