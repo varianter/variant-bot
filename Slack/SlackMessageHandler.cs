@@ -57,9 +57,9 @@ namespace VariantBot.Slack
             }
         }
 
-        public static EphemeralSlackMessageBody CreateSimpleTextEphemeralMessage(string text)
+        public static EphemeralSlackMessage CreateSimpleTextEphemeralMessage(string text)
         {
-            return new EphemeralSlackMessageBody
+            return new EphemeralSlackMessage
             {
                 Blocks = new[]
                 {
@@ -76,9 +76,9 @@ namespace VariantBot.Slack
             };
         }
 
-        public static EphemeralSlackMessageBody CreateInfoCommandEphemeralMessage()
+        public static EphemeralSlackMessage CreateInfoCommandEphemeralMessage()
         {
-            return new EphemeralSlackMessageBody
+            return new EphemeralSlackMessage
             {
                 Blocks = new[]
                 {
@@ -113,10 +113,10 @@ namespace VariantBot.Slack
             };
         }
 
-        private static EphemeralSlackMessageBody CreateNewsletterUrlEphemeralMessage(string channelId,
+        private static EphemeralSlackMessage CreateNewsletterUrlEphemeralMessage(string channelId,
                 string userId)
             {
-                return new EphemeralSlackMessageBody
+                return new EphemeralSlackMessage
                 {
                     Channel = channelId,
                     User = userId,
@@ -154,13 +154,13 @@ namespace VariantBot.Slack
             }
 
             public static async Task PostEphemeralSlackMessage(HttpClient httpClient,
-                EphemeralSlackMessageBody ephemeralSlackMessageBody, string url)
+                EphemeralSlackMessage ephemeralSlackMessage, string url)
             {
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer",
                         Environment.GetEnvironmentVariable("SLACK_OAUTH_ACCESS_TOKEN"));
 
-                var contentString = JsonConvert.SerializeObject(ephemeralSlackMessageBody);
+                var contentString = JsonConvert.SerializeObject(ephemeralSlackMessage);
                 var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = new StringContent(contentString, Encoding.UTF8, "application/json")

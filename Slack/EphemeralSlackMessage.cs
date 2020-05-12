@@ -2,7 +2,7 @@
 
 namespace VariantBot.Slack
 {
-    public class EphemeralSlackMessageBody
+    public class EphemeralSlackMessage
     {
         [JsonProperty("channel")] public string Channel { get; set; }
 

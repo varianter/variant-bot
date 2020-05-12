@@ -69,7 +69,7 @@ namespace VariantBot.Controllers
                 {
                     case "/info":
                     {
-                        EphemeralSlackMessageBody ephemeralMessage;
+                        EphemeralSlackMessage ephemeralMessage;
                         if (!string.IsNullOrWhiteSpace(slackInteractionFormBody.Text)
                             && slackInteractionFormBody.Text.Equals("wifi"))
                         {
