@@ -9,16 +9,21 @@ namespace VariantBot.Slack
 {
     public class EphemeralSlackMessage
     {
+        private static readonly HttpClient HttpClient = new HttpClient();
+        
         [JsonProperty("channel")] public string Channel { get; set; }
 
         [JsonProperty("user")] public string User { get; set; }
 
         [JsonProperty("blocks")] public Block[] Blocks { get; set; }
 
-        public static async Task PostMessage(HttpClient httpClient,
-            EphemeralSlackMessage ephemeralSlackMessage, string url)
+        public static async Task PostSimpleTextMessage()
         {
-            httpClient.DefaultRequestHeaders.Authorization =
+        }
+
+        public static async Task PostMessage(EphemeralSlackMessage ephemeralSlackMessage, string url)
+        {
+            HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer",
                     Environment.GetEnvironmentVariable("SLACK_OAUTH_ACCESS_TOKEN"));
 
@@ -28,7 +33,7 @@ namespace VariantBot.Slack
                 Content = new StringContent(contentString, Encoding.UTF8, "application/json")
             };
 
-            var result = await httpClient.SendAsync(httpRequest);
+            var result = await HttpClient.SendAsync(httpRequest);
             var resultString = await result.Content.ReadAsStringAsync();
 
             if (!result.IsSuccessStatusCode ||

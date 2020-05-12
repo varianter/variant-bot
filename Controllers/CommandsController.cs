@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,12 +11,10 @@ namespace VariantBot.Controllers
     public class CommandsController : ControllerBase
     {
         private readonly ILogger<CommandsController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public CommandsController(ILogger<CommandsController> logger, IHttpClientFactory httpClientFactory)
+        public CommandsController(ILogger<CommandsController> logger)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
         }
 
         [HttpPost]
@@ -44,14 +41,12 @@ namespace VariantBot.Controllers
                         ephemeralMessage = EphemeralSlackMessage
                             .CreateSimpleTextMessage(
                                 Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
-                        await EphemeralSlackMessage.PostMessage(_httpClientFactory.CreateClient(),
-                            ephemeralMessage, slackCommandFormBody.ResponseUrl);
+                        await EphemeralSlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
                         return Ok();
                     }
 
                     ephemeralMessage = EphemeralSlackMessage.CreateInfoCommandMessage();
-                    await EphemeralSlackMessage.PostMessage(
-                        _httpClientFactory.CreateClient(), ephemeralMessage, slackCommandFormBody.ResponseUrl);
+                    await EphemeralSlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
                     return Ok();
                 }
             }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -13,12 +12,10 @@ namespace VariantBot.Slack
     public class SlackMessageHandler
     {
         private readonly ILogger<SlackMessageHandler> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public SlackMessageHandler(ILogger<SlackMessageHandler> logger, IHttpClientFactory httpClientFactory)
+        public SlackMessageHandler(ILogger<SlackMessageHandler> logger)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
         }
 
         public async Task HandleMessage(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -44,7 +41,7 @@ namespace VariantBot.Slack
                 var channelId = slackMessage["event"]["channel"].Value<string>();
 
                 var ephemeralMessageBody = EphemeralSlackMessage.CreateNewsletterUrlMessage(channelId, userId);
-                await EphemeralSlackMessage.PostMessage(_httpClientFactory.CreateClient(), ephemeralMessageBody,
+                await EphemeralSlackMessage.PostMessage(ephemeralMessageBody,
                     "https://slack.com/api/chat.postEphemeral");
             }
             catch (Exception e)

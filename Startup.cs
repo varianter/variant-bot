@@ -16,7 +16,6 @@ namespace VariantBot
             services.AddApplicationInsightsTelemetry();
             
             services
-                .AddHttpClient()
                 .AddControllers()
                 .AddNewtonsoftJson();
 

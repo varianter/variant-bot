@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,14 +12,11 @@ namespace VariantBot.Controllers
     public class ActionsController : ControllerBase
     {
         private readonly ILogger<ActionsController> _logger;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ActionsController(ILogger<ActionsController> logger, IHttpClientFactory httpClientFactory)
+        public ActionsController(ILogger<ActionsController> logger)
         {
             _logger = logger;
-            _httpClientFactory = httpClientFactory;
         }
-
 
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromForm] SlackActionFormBody slackInteractionFormBody)
@@ -48,8 +44,7 @@ namespace VariantBot.Controllers
                     var ephemeralMessage = EphemeralSlackMessage
                         .CreateSimpleTextMessage(
                             Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
-                    await EphemeralSlackMessage.PostMessage(_httpClientFactory.CreateClient(),
-                        ephemeralMessage, jsonPayload["response_url"].Value<string>());
+                    await EphemeralSlackMessage.PostMessage(ephemeralMessage, jsonPayload["response_url"].Value<string>());
                     return Ok();
                 }
             }
