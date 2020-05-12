@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace VariantBot.Slack
@@ -43,12 +40,11 @@ namespace VariantBot.Slack
                 if (!urls.Any())
                     return;
 
-
                 var userId = turnContext.Activity.From.Id.Split(":").FirstOrDefault();
                 var channelId = slackMessage["event"]["channel"].Value<string>();
 
-                var ephemeralMessageBody = CreateNewsletterUrlEphemeralMessage(channelId, userId);
-                await PostEphemeralSlackMessage(_httpClientFactory.CreateClient(), ephemeralMessageBody,
+                var ephemeralMessageBody = EphemeralSlackMessage.CreateNewsletterUrlMessage(channelId, userId);
+                await EphemeralSlackMessage.PostMessage(_httpClientFactory.CreateClient(), ephemeralMessageBody,
                     "https://slack.com/api/chat.postEphemeral");
             }
             catch (Exception e)
@@ -56,125 +52,5 @@ namespace VariantBot.Slack
                 _logger.LogError(e, "Failed to parse SlackMessage");
             }
         }
-
-        public static EphemeralSlackMessage CreateSimpleTextEphemeralMessage(string text)
-        {
-            return new EphemeralSlackMessage
-            {
-                Blocks = new[]
-                {
-                    new Block
-                    {
-                        Type = "section",
-                        Text = new Text
-                        {
-                            Type = "mrkdwn",
-                            TextText = text
-                        }
-                    }
-                }
-            };
-        }
-
-        public static EphemeralSlackMessage CreateInfoCommandEphemeralMessage()
-        {
-            return new EphemeralSlackMessage
-            {
-                Blocks = new[]
-                {
-                    new Block
-                    {
-                        Type = "section",
-                        Text = new Text
-                        {
-                            Type = "mrkdwn",
-                            TextText =
-                                "Hva lurer du på?"
-                        }
-                    },
-                    new Block
-                    {
-                        Type = "actions",
-                        Elements = new[]
-                        {
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Wifi"
-                                },
-                                Value = "wifi"
-                            }
-                        }
-                    }
-                }
-            };
-        }
-
-        private static EphemeralSlackMessage CreateNewsletterUrlEphemeralMessage(string channelId,
-                string userId)
-            {
-                return new EphemeralSlackMessage
-                {
-                    Channel = channelId,
-                    User = userId,
-                    Blocks = new[]
-                    {
-                        new Block
-                        {
-                            Type = "section",
-                            Text = new Text
-                            {
-                                Type = "mrkdwn",
-                                TextText =
-                                    "That looks like an URL\n *Would you like to submit it for the monthly newsletter?*"
-                            }
-                        },
-                        new Block
-                        {
-                            Type = "actions",
-                            Elements = new[]
-                            {
-                                new Element
-                                {
-                                    Type = "button",
-                                    Text = new Text
-                                    {
-                                        Type = "plain_text",
-                                        TextText = "Make it so"
-                                    },
-                                    Value = "URL values go here"
-                                }
-                            }
-                        }
-                    }
-                };
-            }
-
-            public static async Task PostEphemeralSlackMessage(HttpClient httpClient,
-                EphemeralSlackMessage ephemeralSlackMessage, string url)
-            {
-                httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer",
-                        Environment.GetEnvironmentVariable("SLACK_OAUTH_ACCESS_TOKEN"));
-
-                var contentString = JsonConvert.SerializeObject(ephemeralSlackMessage);
-                var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
-                {
-                    Content = new StringContent(contentString, Encoding.UTF8, "application/json")
-                };
-
-                var result = await httpClient.SendAsync(httpRequest);
-                var resultString = await result.Content.ReadAsStringAsync();
-
-                if (!result.IsSuccessStatusCode ||
-                    (!resultString.Contains("\"ok\":true") && !resultString.Contains("ok")))
-                {
-                    throw new Exception(
-                        $"Failed to send ephemeral Slack message, response status code was: '{result.StatusCode}'. Message body: '{resultString}'");
-                }
-            }
-        }
     }
+}

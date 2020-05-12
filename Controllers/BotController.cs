@@ -73,16 +73,16 @@ namespace VariantBot.Controllers
                         if (!string.IsNullOrWhiteSpace(slackInteractionFormBody.Text)
                             && slackInteractionFormBody.Text.Equals("wifi"))
                         {
-                            ephemeralMessage = SlackMessageHandler
-                                .CreateSimpleTextEphemeralMessage(
+                            ephemeralMessage = EphemeralSlackMessage
+                                .CreateSimpleTextMessage(
                                     Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
-                            await SlackMessageHandler.PostEphemeralSlackMessage(_httpClientFactory.CreateClient(),
+                            await EphemeralSlackMessage.PostMessage(_httpClientFactory.CreateClient(),
                                 ephemeralMessage, slackInteractionFormBody.ResponseUrl);
                             return Ok();
                         }
 
-                        ephemeralMessage = SlackMessageHandler.CreateInfoCommandEphemeralMessage();
-                        await SlackMessageHandler.PostEphemeralSlackMessage(
+                        ephemeralMessage = EphemeralSlackMessage.CreateInfoCommandMessage();
+                        await EphemeralSlackMessage.PostMessage(
                             _httpClientFactory.CreateClient(), ephemeralMessage, slackInteractionFormBody.ResponseUrl);
                         return Ok();
                     }
@@ -102,10 +102,10 @@ namespace VariantBot.Controllers
                 {
                     case "wifi":
                     {
-                        var ephemeralMessage = SlackMessageHandler
-                            .CreateSimpleTextEphemeralMessage(
+                        var ephemeralMessage = EphemeralSlackMessage
+                            .CreateSimpleTextMessage(
                                 Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
-                        await SlackMessageHandler.PostEphemeralSlackMessage(_httpClientFactory.CreateClient(),
+                        await EphemeralSlackMessage.PostMessage(_httpClientFactory.CreateClient(),
                             ephemeralMessage, jsonPayload["response_url"].Value<string>());
                         return Ok();
                     }
