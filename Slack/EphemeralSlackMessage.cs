@@ -33,7 +33,7 @@ namespace VariantBot.Slack
                 Content = new StringContent(contentString, Encoding.UTF8, "application/json")
             };
 
-            var result = await HttpClient.SendAsync(httpRequest);
+            using var result = await HttpClient.SendAsync(httpRequest);
             var resultString = await result.Content.ReadAsStringAsync();
 
             if (!result.IsSuccessStatusCode ||
