@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
-using VariantBot.ChannelHandlers;
+using VariantBot.Slack;
 
 namespace VariantBot.Bots
 {

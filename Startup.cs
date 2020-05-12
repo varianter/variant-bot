@@ -5,7 +5,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using VariantBot.ChannelHandlers;
+using VariantBot.Slack;
 
 namespace VariantBot
 {

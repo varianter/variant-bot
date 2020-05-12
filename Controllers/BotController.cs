@@ -9,7 +9,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using VariantBot.ChannelHandlers;
+using VariantBot.Slack;
 
 namespace VariantBot.Controllers
 {

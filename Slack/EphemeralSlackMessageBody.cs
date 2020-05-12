@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace VariantBot.ChannelHandlers
+namespace VariantBot.Slack
 {
     public class EphemeralSlackMessageBody
     {

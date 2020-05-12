@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace VariantBot.ChannelHandlers
+namespace VariantBot.Slack
 {
     public class SlackHandler
     {
