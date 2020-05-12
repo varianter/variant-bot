@@ -23,7 +23,7 @@ namespace VariantBot
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
             services.AddTransient<IBot, Bots.VariantBot>();
             
-            services.AddTransient<SlackHandler, SlackHandler>();
+            services.AddTransient<SlackMessageHandler, SlackMessageHandler>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

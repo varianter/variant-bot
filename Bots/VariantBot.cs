@@ -10,12 +10,12 @@ namespace VariantBot.Bots
     public class VariantBot : ActivityHandler
     {
         private readonly ILogger<VariantBot> _logger;
-        private readonly SlackHandler _slackHandler;
+        private readonly SlackMessageHandler _slackMessageHandler;
 
-        public VariantBot(ILogger<VariantBot> logger, SlackHandler slackHandler)
+        public VariantBot(ILogger<VariantBot> logger, SlackMessageHandler slackMessageHandler)
         {
             _logger = logger;
-            _slackHandler = slackHandler;
+            _slackMessageHandler = slackMessageHandler;
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext,
@@ -24,7 +24,7 @@ namespace VariantBot.Bots
             switch (turnContext.Activity.ChannelId)
             {
                 case "slack":
-                    await _slackHandler.HandleMessage(turnContext, cancellationToken);
+                    await _slackMessageHandler.HandleMessage(turnContext, cancellationToken);
                     break;
 
                 default:

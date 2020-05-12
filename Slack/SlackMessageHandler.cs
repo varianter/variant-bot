@@ -13,12 +13,12 @@ using Newtonsoft.Json.Linq;
 
 namespace VariantBot.Slack
 {
-    public class SlackHandler
+    public class SlackMessageHandler
     {
-        private readonly ILogger<SlackHandler> _logger;
+        private readonly ILogger<SlackMessageHandler> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public SlackHandler(ILogger<SlackHandler> logger, IHttpClientFactory httpClientFactory)
+        public SlackMessageHandler(ILogger<SlackMessageHandler> logger, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
