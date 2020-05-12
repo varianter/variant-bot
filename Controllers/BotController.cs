@@ -59,8 +59,11 @@ namespace VariantBot.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromForm] SlackInteractionFormBody slackInteractionFormBody)
         {
-            if (!await RequestHasValidSignature())
+            if (!await SlackAuthenticator.RequestHasValidSignature(Request))
+            {
+                _logger.LogError("Invalid or missing Slack signature");
                 return Unauthorized();
+            }
 
             if (!string.IsNullOrWhiteSpace(slackInteractionFormBody.Command))
             {
@@ -113,58 +116,6 @@ namespace VariantBot.Controllers
             }
 
             return BadRequest();
-        }
-
-        private async Task<bool> RequestHasValidSignature()
-        {
-            using var reader = new StreamReader(Request.Body);
-            var requestBody = await reader.ReadToEndAsync();
-            
-            string slackSignatureHeader = Request.Headers["X-Slack-Signature"];
-            if (string.IsNullOrWhiteSpace(slackSignatureHeader))
-                return false;
-
-            var (slackVersion, slackSignature) =
-                GetSlackVersionAndSignature(slackSignatureHeader);
-
-            string slackTimestamp = Request.Headers["X-Slack-Request-Timestamp"];
-            if (string.IsNullOrWhiteSpace(slackTimestamp))
-                return false;
-
-            var signatureBase = $"{slackVersion}:{slackTimestamp}:{requestBody}";
-            var signatureSecret = Environment.GetEnvironmentVariable("SLACK_SIGNATURE_SECRET");
-
-            var signature = GetSignature(signatureBase, signatureSecret);
-
-            var requestHasValidSignature = signature.Equals(slackSignature);
-            if (requestHasValidSignature)
-                return true;
-            
-            _logger.LogError("Invalid or missing Slack signature");
-            return false;
-        }
-
-        private static string GetSignature(string signatureBase, string signatureSecret)
-        {
-            var encoding = new UTF8Encoding();
-
-            var signatureBaseBytes = encoding.GetBytes(signatureBase);
-            var signatureSecretBytes = encoding.GetBytes(signatureSecret);
-
-            byte[] signature;
-
-            using (var hash = new HMACSHA256(signatureSecretBytes))
-                signature = hash.ComputeHash(signatureBaseBytes);
-
-            return BitConverter.ToString(signature).Replace("-", "").ToLower();
-        }
-
-        private static (string slackVersion, string slackSignature)
-            GetSlackVersionAndSignature(string slackSignatureHeader)
-        {
-            // Header has format 'version=signature', v0=2fb833...
-            var splitString = slackSignatureHeader.Split("=");
-            return splitString.Length < 2 ? (string.Empty, string.Empty) : (splitString[0], splitString[1]);
         }
     }
 }
