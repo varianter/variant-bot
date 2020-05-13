@@ -26,16 +26,15 @@ namespace VariantBot.Slack
 
         public static async Task PostSimpleTextMessage(string message, string url)
         {
-            var ephemeralMessage = CreateSimpleTextMessage(message);
-            await PostMessage(ephemeralMessage, url);
+            var jsonContent = JsonConvert.SerializeObject(CreateSimpleTextMessage(message));
+            await Post(jsonContent, url);
         }
 
-        public static async Task PostMessage(SlackMessage slackMessage, string url)
+        public static async Task Post(string jsonContent, string url)
         {
-            var contentString = JsonConvert.SerializeObject(slackMessage);
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new StringContent(contentString, Encoding.UTF8, "application/json")
+                Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
             };
 
             using var result = await HttpClient.SendAsync(httpRequest);

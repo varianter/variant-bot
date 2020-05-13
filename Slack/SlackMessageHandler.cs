@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace VariantBot.Slack
@@ -40,8 +41,8 @@ namespace VariantBot.Slack
                 var userId = turnContext.Activity.From.Id.Split(":").FirstOrDefault();
                 var channelId = slackMessage["event"]["channel"].Value<string>();
 
-                var ephemeralMessageBody = SlackMessage.CreateNewsletterUrlMessage(channelId, userId);
-                await SlackMessage.PostMessage(ephemeralMessageBody,
+                var jsonContent = JsonConvert.SerializeObject(SlackMessage.CreateNewsletterUrlMessage(channelId, userId));
+                await SlackMessage.Post(jsonContent,
                     "https://slack.com/api/chat.postEphemeral");
             }
             catch (Exception e)

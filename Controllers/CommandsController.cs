@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using VariantBot.Slack;
 
 namespace VariantBot.Controllers
@@ -38,8 +39,8 @@ namespace VariantBot.Controllers
                         return Ok();
                     }
 
-                    var ephemeralMessage = SlackMessage.CreateInfoCommandMessage();
-                    await SlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
+                    var jsonContent = JsonConvert.SerializeObject(SlackMessage.CreateInfoCommandMessage());
+                    await SlackMessage.Post(jsonContent, slackCommandFormBody.ResponseUrl);
                     return Ok();
                 }
             }
