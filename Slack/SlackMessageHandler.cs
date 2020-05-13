@@ -40,8 +40,8 @@ namespace VariantBot.Slack
                 var userId = turnContext.Activity.From.Id.Split(":").FirstOrDefault();
                 var channelId = slackMessage["event"]["channel"].Value<string>();
 
-                var ephemeralMessageBody = EphemeralSlackMessage.CreateNewsletterUrlMessage(channelId, userId);
-                await EphemeralSlackMessage.PostMessage(ephemeralMessageBody,
+                var ephemeralMessageBody = SlackMessage.CreateNewsletterUrlMessage(channelId, userId);
+                await SlackMessage.PostMessage(ephemeralMessageBody,
                     "https://slack.com/api/chat.postEphemeral");
             }
             catch (Exception e)

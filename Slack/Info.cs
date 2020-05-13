@@ -85,7 +85,7 @@ namespace VariantBot.Slack
                     break;
             }
 
-            await EphemeralSlackMessage.PostSimpleTextMessage(responseString, url);
+            await SlackMessage.PostSimpleTextMessage(responseString, url);
         }
     }
 }

@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 
 namespace VariantBot.Slack
 {
-    public class EphemeralSlackMessage
+    public class SlackMessage
     {
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        static EphemeralSlackMessage()
+        static SlackMessage()
         {
             HttpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer",
@@ -30,9 +30,9 @@ namespace VariantBot.Slack
             await PostMessage(ephemeralMessage, url);
         }
 
-        public static async Task PostMessage(EphemeralSlackMessage ephemeralSlackMessage, string url)
+        public static async Task PostMessage(SlackMessage slackMessage, string url)
         {
-            var contentString = JsonConvert.SerializeObject(ephemeralSlackMessage);
+            var contentString = JsonConvert.SerializeObject(slackMessage);
             var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(contentString, Encoding.UTF8, "application/json")
@@ -49,9 +49,9 @@ namespace VariantBot.Slack
             }
         }
 
-        private static EphemeralSlackMessage CreateSimpleTextMessage(string text)
+        private static SlackMessage CreateSimpleTextMessage(string text)
         {
-            return new EphemeralSlackMessage
+            return new SlackMessage
             {
                 Blocks = new[]
                 {
@@ -68,10 +68,10 @@ namespace VariantBot.Slack
             };
         }
 
-        public static EphemeralSlackMessage CreateNewsletterUrlMessage(string channelId,
+        public static SlackMessage CreateNewsletterUrlMessage(string channelId,
             string userId)
         {
-            return new EphemeralSlackMessage
+            return new SlackMessage
             {
                 Channel = channelId,
                 User = userId,
@@ -108,9 +108,9 @@ namespace VariantBot.Slack
             };
         }
 
-        public static EphemeralSlackMessage CreateInfoCommandMessage()
+        public static SlackMessage CreateInfoCommandMessage()
         {
-            return new EphemeralSlackMessage
+            return new SlackMessage
             {
                 Blocks = new[]
                 {

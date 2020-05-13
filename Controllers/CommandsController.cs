@@ -38,8 +38,8 @@ namespace VariantBot.Controllers
                         return Ok();
                     }
 
-                    var ephemeralMessage = EphemeralSlackMessage.CreateInfoCommandMessage();
-                    await EphemeralSlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
+                    var ephemeralMessage = SlackMessage.CreateInfoCommandMessage();
+                    await SlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
                     return Ok();
                 }
             }
