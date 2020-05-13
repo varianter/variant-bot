@@ -46,7 +46,7 @@ namespace VariantBot.Slack
             }
         }
 
-        public static EphemeralSlackMessage CreateSimpleTextMessage(string text)
+        private static EphemeralSlackMessage CreateSimpleTextMessage(string text)
         {
             return new EphemeralSlackMessage
             {
