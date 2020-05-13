@@ -26,7 +26,7 @@ namespace VariantBot.Slack
                 return false;
 
             var signatureBase = $"{slackVersion}:{slackTimestamp}:{requestBody}";
-            var signatureSecret = Environment.GetEnvironmentVariable("SLACK_SIGNATURE_SECRET");
+            var signatureSecret = Environment.GetEnvironmentVariable("VARIANT_SLACK_SIGNATURE_SECRET");
 
             var signature = GetSignature(signatureBase, signatureSecret);
 
