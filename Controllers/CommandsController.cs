@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VariantBot.Slack;
@@ -35,17 +34,8 @@ namespace VariantBot.Controllers
                 {
                     if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
                     {
-                        switch (slackCommandFormBody.Text)
-                        {
-                            case "wifi":
-                            {
-                                await EphemeralSlackMessage
-                                    .PostSimpleTextMessage(Info.WifiSSIDAndPassword,
-                                        slackCommandFormBody.ResponseUrl);
-                                return Ok();
-                            }
-                        }
-
+                        Info.SendInteractionResponse(slackCommandFormBody.Text, slackCommandFormBody.ResponseUrl);
+                        return Ok();
                     }
 
                     var ephemeralMessage = EphemeralSlackMessage.CreateInfoCommandMessage();

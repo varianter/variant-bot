@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -27,28 +26,19 @@ namespace VariantBot.Controllers
                 return Unauthorized();
             }
 
-
             if (string.IsNullOrWhiteSpace(slackInteractionFormBody.Payload)) 
                 return BadRequest();
             
             var jsonPayload = JObject.Parse(slackInteractionFormBody.Payload);
             var interactionValue = jsonPayload["actions"][0]["value"].Value<string>();
+            var responseUrl = jsonPayload["response_url"].Value<string>(); 
 
             if (string.IsNullOrWhiteSpace(interactionValue))
                 return BadRequest();
 
-            switch (interactionValue)
-            {
-                case "wifi":
-                {
-                    await EphemeralSlackMessage
-                        .PostSimpleTextMessage(Info.WifiSSIDAndPassword,
-                            jsonPayload["response_url"].Value<string>());
-                    return Ok();
-                }
-            }
+            Info.SendInteractionResponse(interactionValue, responseUrl);
 
-            return BadRequest();
+            return Ok();
         }
 
 
