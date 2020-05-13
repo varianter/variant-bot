@@ -9,11 +9,11 @@ namespace VariantBot.Slack
 {
     public static class SlackAuthenticator
     {
-       public static async Task<bool> RequestHasValidSignature(HttpRequest request)
+        public static async Task<bool> RequestHasValidSignature(HttpRequest request)
         {
             using var reader = new StreamReader(request.Body);
             var requestBody = await reader.ReadToEndAsync();
-            
+
             string slackSignatureHeader = request.Headers["X-Slack-Signature"];
             if (string.IsNullOrWhiteSpace(slackSignatureHeader))
                 return false;
@@ -55,6 +55,6 @@ namespace VariantBot.Slack
             // Header has format 'version=signature', v0=2fb833...
             var splitString = slackSignatureHeader.Split("=");
             return splitString.Length < 2 ? (string.Empty, string.Empty) : (splitString[0], splitString[1]);
-        } 
+        }
     }
 }
