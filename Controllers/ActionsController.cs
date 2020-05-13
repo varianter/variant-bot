@@ -36,7 +36,7 @@ namespace VariantBot.Controllers
             if (string.IsNullOrWhiteSpace(interactionValue))
                 return BadRequest();
 
-            Info.SendInteractionResponse(interactionValue, responseUrl);
+            await Info.SendInteractionResponse(interactionValue, responseUrl);
 
             return Ok();
         }

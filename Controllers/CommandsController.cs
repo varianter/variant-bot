@@ -35,7 +35,7 @@ namespace VariantBot.Controllers
                 {
                     if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
                     {
-                        Info.SendInteractionResponse(slackCommandFormBody.Text, slackCommandFormBody.ResponseUrl);
+                        await Info.SendInteractionResponse(slackCommandFormBody.Text, slackCommandFormBody.ResponseUrl);
                         return Ok();
                     }
 

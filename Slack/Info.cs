@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace VariantBot.Slack
 {
@@ -41,7 +42,7 @@ namespace VariantBot.Slack
         private static string TravelBill =>
             Environment.GetEnvironmentVariable("VARIANT_TRAVEL_BILL");
         
-        public static async void SendInteractionResponse(string interactionValue, string url)
+        public static async Task SendInteractionResponse(string interactionValue, string url)
         {
             var responseString = string.Empty;
             
