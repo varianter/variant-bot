@@ -10,7 +10,7 @@ namespace VariantBot.Slack
     public class EphemeralSlackMessage
     {
         private static readonly HttpClient HttpClient = new HttpClient();
-        
+
         [JsonProperty("channel")] public string Channel { get; set; }
 
         [JsonProperty("user")] public string User { get; set; }
@@ -134,8 +134,85 @@ namespace VariantBot.Slack
                                     Type = "plain_text",
                                     TextText = "Wifi"
                                 },
-                                Value = "wifi"
-                            }
+                                Value = Info.InteractionValue.Wifi
+                            },
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "OrgNr/Adr"
+                                },
+                                Value = Info.InteractionValue.OrganizationNr
+                            },
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "E-post"
+                                },
+                                Value = Info.InteractionValue.WebMail
+                            },
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "Reiseforsikring"
+                                },
+                                Value = Info.InteractionValue.TravelInsurance
+                            },
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "Reiseregning"
+                                },
+                                Value = Info.InteractionValue.TravelBill
+                            },
+                        }
+                    },
+                    new Block
+                    {
+                        Type = "actions",
+                        Elements = new[]
+                        {
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "Eierskifteskjema"
+                                },
+                                Value = Info.InteractionValue.OwnerChangeForm
+                            },
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "Slack-guide"
+                                },
+                                Value = Info.InteractionValue.SlackGuide
+                            },
+                            new Element
+                            {
+                                Type = "button",
+                                Text = new Text
+                                {
+                                    Type = "plain_text",
+                                    TextText = "Slack-theme"
+                                },
+                                Value = Info.InteractionValue.SlackTheme
+                            },
                         }
                     }
                 }
@@ -153,6 +230,7 @@ namespace VariantBot.Slack
         [JsonProperty("elements", NullValueHandling = NullValueHandling.Ignore)]
         public Element[] Elements { get; set; }
     }
+
 
     public class Element
     {
