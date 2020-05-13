@@ -33,18 +33,22 @@ namespace VariantBot.Controllers
             {
                 case "/info":
                 {
-                    EphemeralSlackMessage ephemeralMessage;
-                    if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text)
-                        && slackCommandFormBody.Text.Equals("wifi"))
+                    if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
                     {
-                        ephemeralMessage = EphemeralSlackMessage
-                            .CreateSimpleTextMessage(
-                                Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
-                        await EphemeralSlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
-                        return Ok();
+                        switch (slackCommandFormBody.Text)
+                        {
+                            case "wifi":
+                            {
+                                await EphemeralSlackMessage
+                                    .PostSimpleTextMessage(Info.WifiSSIDAndPassword,
+                                        slackCommandFormBody.ResponseUrl);
+                                return Ok();
+                            }
+                        }
+
                     }
 
-                    ephemeralMessage = EphemeralSlackMessage.CreateInfoCommandMessage();
+                    var ephemeralMessage = EphemeralSlackMessage.CreateInfoCommandMessage();
                     await EphemeralSlackMessage.PostMessage(ephemeralMessage, slackCommandFormBody.ResponseUrl);
                     return Ok();
                 }

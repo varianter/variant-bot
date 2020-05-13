@@ -41,10 +41,9 @@ namespace VariantBot.Controllers
             {
                 case "wifi":
                 {
-                    var ephemeralMessage = EphemeralSlackMessage
-                        .CreateSimpleTextMessage(
-                            Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD"));
-                    await EphemeralSlackMessage.PostMessage(ephemeralMessage, jsonPayload["response_url"].Value<string>());
+                    await EphemeralSlackMessage
+                        .PostSimpleTextMessage(Info.WifiSSIDAndPassword,
+                            jsonPayload["response_url"].Value<string>());
                     return Ok();
                 }
             }

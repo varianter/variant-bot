@@ -17,8 +17,10 @@ namespace VariantBot.Slack
 
         [JsonProperty("blocks")] public Block[] Blocks { get; set; }
 
-        public static async Task PostSimpleTextMessage()
+        public static async Task PostSimpleTextMessage(string message, string url)
         {
+            var ephemeralMessage = EphemeralSlackMessage.CreateSimpleTextMessage(message);
+            await PostMessage(ephemeralMessage, url);
         }
 
         public static async Task PostMessage(EphemeralSlackMessage ephemeralSlackMessage, string url)
