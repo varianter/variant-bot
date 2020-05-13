@@ -19,7 +19,7 @@ namespace VariantBot.Slack
 
         public static async Task PostSimpleTextMessage(string message, string url)
         {
-            var ephemeralMessage = EphemeralSlackMessage.CreateSimpleTextMessage(message);
+            var ephemeralMessage = CreateSimpleTextMessage(message);
             await PostMessage(ephemeralMessage, url);
         }
 

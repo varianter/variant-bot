@@ -48,36 +48,36 @@ namespace VariantBot.Slack
             switch (interactionValue)
             {
                 case InteractionValue.Wifi:
-                    responseString += Info.WifiSSIDAndPassword;
+                    responseString += WifiSSIDAndPassword;
                     break;
 
                 case InteractionValue.OrganizationNr:
                 case InteractionValue.Address:
-                    responseString += Info.OrgNrAndAddress;
+                    responseString += OrgNrAndAddress;
                     break;
 
                 case InteractionValue.WebMail:
-                    responseString += Info.WebMail;
+                    responseString += WebMail;
                     break;
                 
                 case InteractionValue.TravelInsurance:
-                    responseString += Info.TravelInsurance;
+                    responseString += TravelInsurance;
                     break;
                 
                 case InteractionValue.OwnerChangeForm:
-                    responseString += Info.OwnerChangeForm;
+                    responseString += OwnerChangeForm;
                     break;
                 
                 case InteractionValue.SlackTheme:
-                    responseString += Info.SlackTheme;
+                    responseString += SlackTheme;
                     break;
                 
                 case InteractionValue.SlackGuide:
-                    responseString += Info.SlackGuide;
+                    responseString += SlackGuide;
                     break;
 
                 case InteractionValue.TravelBill:
-                    responseString += Info.TravelBill;
+                    responseString += TravelBill;
                     break;
                 
                 default:
