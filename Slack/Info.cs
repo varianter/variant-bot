@@ -34,7 +34,7 @@ namespace VariantBot.Slack
             Environment.GetEnvironmentVariable("VARIANT_OWNER_CHANGE_FORM");
 
         private static string SlackTheme =>
-            "Slack theme sendt på PM! (Så får du en knapp som skifter tema med et klikk)";
+            $"Slack theme sendt på PM! :art: {Environment.NewLine} (Så får du en knapp som skifter tema (funker ikke på mobil :no_mobile_phones:))";
 
         private static string SlackGuide =>
             Environment.GetEnvironmentVariable("VARIANT_SLACK_GUIDE");
