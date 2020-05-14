@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -36,6 +37,16 @@ namespace VariantBot.Controllers
                     if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
                     {
                         await Info.SendInteractionResponse(slackCommandFormBody.Text, slackCommandFormBody.ResponseUrl);
+                        
+                        if (slackCommandFormBody.Text.Equals(Info.InteractionValue.SlackTheme))
+                        {
+                            var userId = slackCommandFormBody.UserId;
+                            var slackTheme = Environment.GetEnvironmentVariable("VARIANT_SLACK_THEME"); 
+                            await SlackMessage.Post(
+                                $"{{\"channel\": \"{userId}\",\"text\": \"{slackTheme}\"}}",
+                                "https://slack.com/api/chat.postMessage");
+                        }
+                        
                         return Ok();
                     }
 
@@ -52,6 +63,8 @@ namespace VariantBot.Controllers
         {
             public string Text { get; set; }
             public string Command { get; set; }
+
+            [FromForm(Name = "user_id")] public string UserId { get; set; }
 
             [FromForm(Name = "response_url")] public string ResponseUrl { get; set; }
         }

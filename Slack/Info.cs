@@ -34,18 +34,19 @@ namespace VariantBot.Slack
             Environment.GetEnvironmentVariable("VARIANT_OWNER_CHANGE_FORM");
 
         private static string SlackTheme =>
-            Environment.GetEnvironmentVariable("VARIANT_SLACK_THEME");
+            "Slack theme sendt på PM! (Så får du en knapp som skifter tema med et klikk)";
 
         private static string SlackGuide =>
             Environment.GetEnvironmentVariable("VARIANT_SLACK_GUIDE");
 
         private static string TravelBill =>
             Environment.GetEnvironmentVariable("VARIANT_TRAVEL_BILL");
-        
-        public static async Task SendInteractionResponse(string interactionValue, string url)
+
+        public static async Task SendInteractionResponse(string interactionValue,
+            string url, string channelId = null, string userId = null)
         {
             var responseString = string.Empty;
-            
+
             switch (interactionValue)
             {
                 case InteractionValue.Wifi:
@@ -80,13 +81,13 @@ namespace VariantBot.Slack
                 case InteractionValue.TravelBill:
                     responseString += TravelBill;
                     break;
-                
+
                 default:
                     responseString += $"Kjenner ikke til \"{interactionValue}\", dessverre :sweat_smile:";
                     break;
             }
 
-            await SlackMessage.PostSimpleTextMessage(responseString, url);
+            await SlackMessage.PostSimpleTextMessage(responseString, url, channelId, userId);
         }
     }
 }

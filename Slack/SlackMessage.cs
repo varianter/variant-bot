@@ -24,9 +24,9 @@ namespace VariantBot.Slack
 
         [JsonProperty("blocks")] public Block[] Blocks { get; set; }
 
-        public static async Task PostSimpleTextMessage(string message, string url)
+        public static async Task PostSimpleTextMessage(string message, string url, string channelId, string userId)
         {
-            var jsonContent = JsonConvert.SerializeObject(CreateSimpleTextMessage(message));
+            var jsonContent = JsonConvert.SerializeObject(CreateSimpleTextMessage(message, channelId, userId));
             await Post(jsonContent, url);
         }
 
@@ -48,10 +48,12 @@ namespace VariantBot.Slack
             }
         }
 
-        private static SlackMessage CreateSimpleTextMessage(string text)
+        private static SlackMessage CreateSimpleTextMessage(string text, string channelId, string userId)
         {
             return new SlackMessage
             {
+                Channel = channelId,
+                User = userId,
                 Blocks = new[]
                 {
                     new Block
