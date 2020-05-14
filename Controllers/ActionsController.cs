@@ -43,8 +43,7 @@ namespace VariantBot.Controllers
 
             if (interactionValue.Equals(Info.InteractionValue.SlackTheme))
             {
-                var userId = jsonPayload["user"]["id"];
-                var slackTheme = Environment.GetEnvironmentVariable("VARIANT_SLACK_THEME"); 
+                var slackTheme = Environment.GetEnvironmentVariable("VARIANT_SLACK_THEME");
                 await SlackMessage.Post(
                     $"{{\"channel\": \"{userId}\",\"text\": \"{slackTheme}\"}}",
                     "https://slack.com/api/chat.postMessage");

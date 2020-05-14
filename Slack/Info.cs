@@ -17,7 +17,7 @@ namespace VariantBot.Slack
             public const string SlackTheme = "slackTheme";
             public const string SlackGuide = "slackGuide";
         }
-        
+
         private static string WifiSSIDAndPassword =>
             Environment.GetEnvironmentVariable("VARIANT_WIFI_SSID_AND_PASSWORD");
 
@@ -61,19 +61,19 @@ namespace VariantBot.Slack
                 case InteractionValue.WebMail:
                     responseString += WebMail;
                     break;
-                
+
                 case InteractionValue.TravelInsurance:
                     responseString += TravelInsurance;
                     break;
-                
+
                 case InteractionValue.OwnerChangeForm:
                     responseString += OwnerChangeForm;
                     break;
-                
+
                 case InteractionValue.SlackTheme:
                     responseString += SlackTheme;
                     break;
-                
+
                 case InteractionValue.SlackGuide:
                     responseString += SlackGuide;
                     break;
