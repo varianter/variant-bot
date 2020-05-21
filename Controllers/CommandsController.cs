@@ -32,11 +32,12 @@ namespace VariantBot.Controllers
             switch (slackCommandFormBody.Command)
             {
                 case "/info":
+                case "/help":
                 {
                     if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
                     {
                         await Info.SendInteractionResponse(slackCommandFormBody.Text, slackCommandFormBody.ResponseUrl);
-                        
+
                         return Ok();
                     }
 
