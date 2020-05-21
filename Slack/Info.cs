@@ -21,7 +21,8 @@ namespace VariantBot.Slack
         {
             var responseString = string.Empty;
             var infoItem = Config.InfoItems
-                .FirstOrDefault(infoItem => infoItem.InteractionValue.Equals(interactionValue));
+                .FirstOrDefault(infoItem =>
+                    infoItem.InteractionValue.Equals(interactionValue, StringComparison.OrdinalIgnoreCase));
 
             if (infoItem == null)
                 responseString += $"Kjenner ikke til \"{interactionValue}\", dessverre :sweat_smile:";
