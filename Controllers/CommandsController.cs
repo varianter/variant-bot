@@ -32,7 +32,7 @@ namespace VariantBot.Controllers
             switch (slackCommandFormBody.Command)
             {
                 case "/info":
-                case "/help":
+                case "/hjelp":
                 {
                     if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
                     {
