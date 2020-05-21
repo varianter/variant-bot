@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Text;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder;
@@ -13,6 +14,8 @@ namespace VariantBot
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            
             services.AddApplicationInsightsTelemetry();
             
             services

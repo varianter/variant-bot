@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -40,14 +39,6 @@ namespace VariantBot.Controllers
 
             await Info.SendInteractionResponse(interactionValue,
                 "https://slack.com/api/chat.postEphemeral", channelId, userId);
-
-            if (interactionValue.Equals(Info.InteractionValue.SlackTheme))
-            {
-                var slackTheme = Environment.GetEnvironmentVariable("VARIANT_SLACK_THEME");
-                await SlackMessage.Post(
-                    $"{{\"channel\": \"{userId}\",\"text\": \"{slackTheme}\"}}",
-                    "https://slack.com/api/chat.postMessage");
-            }
 
             return Ok();
         }

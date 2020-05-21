@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using MoreLinq.Extensions;
 using Newtonsoft.Json;
 
 namespace VariantBot.Slack
@@ -22,7 +25,7 @@ namespace VariantBot.Slack
 
         [JsonProperty("user")] public string User { get; set; }
 
-        [JsonProperty("blocks")] public Block[] Blocks { get; set; }
+        [JsonProperty("blocks")] public List<Block> Blocks { get; set; }
 
         public static async Task PostSimpleTextMessage(string message, string url, string channelId, string userId)
         {
@@ -54,7 +57,7 @@ namespace VariantBot.Slack
             {
                 Channel = channelId,
                 User = userId,
-                Blocks = new[]
+                Blocks = new List<Block>
                 {
                     new Block
                     {
@@ -76,7 +79,7 @@ namespace VariantBot.Slack
             {
                 Channel = channelId,
                 User = userId,
-                Blocks = new[]
+                Blocks = new List<Block>
                 {
                     new Block
                     {
@@ -91,7 +94,7 @@ namespace VariantBot.Slack
                     new Block
                     {
                         Type = "actions",
-                        Elements = new[]
+                        Elements = new List<Element>
                         {
                             new Element
                             {
@@ -109,11 +112,14 @@ namespace VariantBot.Slack
             };
         }
 
-        public static SlackMessage CreateInfoCommandMessage()
+        public static async Task<SlackMessage> CreateInfoCommandMessage()
         {
-            return new SlackMessage
+            if (!Config.InfoItems.Any())
+                await Config.LoadConfigFromSharePoint();
+            
+            var slackMessage =  new SlackMessage
             {
-                Blocks = new[]
+                Blocks = new List<Block>
                 {
                     new Block
                     {
@@ -124,106 +130,46 @@ namespace VariantBot.Slack
                             TextText =
                                 "Hva lurer du på?"
                         }
-                    },
-                    new Block
-                    {
-                        Type = "actions",
-                        Elements = new[]
-                        {
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Wifi"
-                                },
-                                Value = Info.InteractionValue.Wifi
-                            },
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "OrgNr/Adr"
-                                },
-                                Value = Info.InteractionValue.OrganizationNr
-                            },
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "E-post"
-                                },
-                                Value = Info.InteractionValue.WebMail
-                            },
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Reiseforsikring"
-                                },
-                                Value = Info.InteractionValue.TravelInsurance
-                            },
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Reiseregning"
-                                },
-                                Value = Info.InteractionValue.TravelBill
-                            },
-                        }
-                    },
-                    new Block
-                    {
-                        Type = "actions",
-                        Elements = new[]
-                        {
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Eierskifteskjema"
-                                },
-                                Value = Info.InteractionValue.OwnerChangeForm
-                            },
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Slack-guide"
-                                },
-                                Value = Info.InteractionValue.SlackGuide
-                            },
-                            new Element
-                            {
-                                Type = "button",
-                                Text = new Text
-                                {
-                                    Type = "plain_text",
-                                    TextText = "Slack-theme"
-                                },
-                                Value = Info.InteractionValue.SlackTheme
-                            },
-                        }
                     }
                 }
             };
+            
+            var buttonBlocks = new List<Block>();
+
+            foreach (var infoItemBatch in Config.InfoItems.Batch(5))
+            {
+                var elements = infoItemBatch
+                    .Select(CreateButtonElement)
+                    .ToList();
+
+                var buttonBlock = new Block
+                {
+                    Type = "actions",
+                    Elements = elements 
+                };
+
+                buttonBlocks.Add(buttonBlock);
+            }
+
+            slackMessage.Blocks.AddRange(buttonBlocks);
+            return slackMessage;
+        }
+
+        private static Element CreateButtonElement(Info.InfoItem infoItem)
+        {
+            return new Element
+            {
+                Type = "button",
+                Text = new Text
+                {
+                    Type = "plain_text",
+                    TextText = infoItem.InteractionValue
+                },
+                Value = infoItem.InteractionValue
+            };
         }
     }
-
+    
     public class Block
     {
         [JsonProperty("type")] public string Type { get; set; }
@@ -232,7 +178,7 @@ namespace VariantBot.Slack
         public Text Text { get; set; }
 
         [JsonProperty("elements", NullValueHandling = NullValueHandling.Ignore)]
-        public Element[] Elements { get; set; }
+        public List<Element> Elements { get; set; }
     }
 
 
