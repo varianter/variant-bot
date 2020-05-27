@@ -66,6 +66,8 @@ namespace VariantBot.Middleware
             var requestBody = await reader.ReadToEndAsync();
             context.Request.Body.Position = 0;
 
+            // AppServiceClientSecret is added to the request from the Logic App on Azure 
+            // that checks for changes in the /info config file that lives on SharePoint
             if (!string.IsNullOrWhiteSpace(requestBody) && requestBody.Contains("AppServiceClientSecret"))
             {
                 var parsedRequestBody = JObject.Parse(requestBody);
@@ -90,6 +92,8 @@ namespace VariantBot.Middleware
                 return;
             }
 
+            // Slacks API posts a challenge when changing URLs
+            // on the Slack App config pages
             if (requestBody.Contains("challenge"))
             {
                 var parsedRequestBody = JObject.Parse(requestBody);
