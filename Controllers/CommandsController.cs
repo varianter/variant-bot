@@ -20,12 +20,6 @@ namespace VariantBot.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromForm] SlackCommandFormBody slackCommandFormBody)
         {
-            if (!await SlackAuthenticator.RequestHasValidSignature(Request))
-            {
-                _logger.LogError("Invalid or missing Slack signature");
-                return Unauthorized();
-            }
-
             if (string.IsNullOrWhiteSpace(slackCommandFormBody.Command))
                 return BadRequest();
 
