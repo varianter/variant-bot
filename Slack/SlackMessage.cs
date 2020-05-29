@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MoreLinq.Extensions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace VariantBot.Slack
 {
@@ -116,8 +117,8 @@ namespace VariantBot.Slack
         {
             if (!Config.InfoItems.Any())
                 await Config.LoadConfigFromSharePoint();
-            
-            var slackMessage =  new SlackMessage
+
+            var slackMessage = new SlackMessage
             {
                 Blocks = new List<Block>
                 {
@@ -133,7 +134,7 @@ namespace VariantBot.Slack
                     }
                 }
             };
-            
+
             var buttonBlocks = new List<Block>();
 
             foreach (var infoItemBatch in Config.InfoItems.Batch(5))
@@ -145,7 +146,7 @@ namespace VariantBot.Slack
                 var buttonBlock = new Block
                 {
                     Type = "actions",
-                    Elements = elements 
+                    Elements = elements
                 };
 
                 buttonBlocks.Add(buttonBlock);
@@ -169,7 +170,7 @@ namespace VariantBot.Slack
             };
         }
     }
-    
+
     public class Block
     {
         [JsonProperty("type")] public string Type { get; set; }
@@ -186,9 +187,19 @@ namespace VariantBot.Slack
     {
         [JsonProperty("type")] public string Type { get; set; }
 
-        [JsonProperty("text")] public Text Text { get; set; }
+        [JsonProperty("text")]
+        [JsonConverter(typeof(TextElementConverter))]
+        public Text Text { get; set; }
 
         [JsonProperty("value")] public string Value { get; set; }
+
+        [JsonProperty("url")] public string Url { get; set; }
+
+        public bool ShouldSerializeUrl() => !string.IsNullOrWhiteSpace(Url);
+
+        [JsonProperty("elements")] public List<Element> Elements { get; set; }
+
+        public bool ShouldSerializeElements() => Elements != null;
     }
 
     public class Text
@@ -196,5 +207,30 @@ namespace VariantBot.Slack
         [JsonProperty("type")] public string Type { get; set; }
 
         [JsonProperty("text")] public string TextText { get; set; }
+    }
+
+    internal class TextElementConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value);
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue,
+            JsonSerializer serializer)
+        {
+            var token = JToken.Load(reader);
+            if (token.Type == JTokenType.String)
+            {
+                return new Text {TextText = token.Value<string>()};
+            }
+
+            return token.ToObject<Text>();
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(Text);
+        }
     }
 }
