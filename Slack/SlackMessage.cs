@@ -115,9 +115,7 @@ namespace VariantBot.Slack
 
         public static async Task<SlackMessage> CreateInfoCommandMessage()
         {
-            if (!Config.InfoItems.Any())
-                await Config.LoadConfigFromSharePoint();
-
+            await Config.LoadConfigFromSharePoint();
             var slackMessage = new SlackMessage
             {
                 Blocks = new List<Block>

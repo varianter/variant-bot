@@ -1,34 +1,24 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using ExcelDataReader;
 using Newtonsoft.Json;
 
 namespace VariantBot.Slack
 {
     public static class Config
     {
-        private static readonly string DocumentFolderUrl = Environment.GetEnvironmentVariable("VARIANT_BOT_SHAREPOINT_FOLDER_URL");
+        private static readonly string SharePointConfigListUrl =
+            Environment.GetEnvironmentVariable("VARIANT_BOT_SHAREPOINT_CONFIG_LIST_URL");
+
         private static readonly string AuthUri = Environment.GetEnvironmentVariable("VARIANT_BOT_SHAREPOINT_AUTH_URL");
-        private static readonly ArrayList _infoItems = ArrayList.Synchronized(new ArrayList());
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        public static IEnumerable<Info.InfoItem> InfoItems => _infoItems.Cast<Info.InfoItem>();
+        public static readonly List<Info.InfoItem> InfoItems = new List<Info.InfoItem>();
 
-        public static async Task LoadConfigFromSharePoint(byte[] documentData = null)
+        public static async Task LoadConfigFromSharePoint()
         {
-            if (documentData != null)
-            {
-                ReloadInfoItems(documentData);
-                return;
-            }
-
             var formParameters = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("client_id",
@@ -60,38 +50,25 @@ namespace VariantBot.Slack
 
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
-            var documentFolderRequest = new HttpRequestMessage(HttpMethod.Get, DocumentFolderUrl);
-            var documentFolderResult = await HttpClient.SendAsync(documentFolderRequest);
-            var documentFolderString = await documentFolderResult.Content.ReadAsStringAsync();
-            var documentFolder = JsonConvert.DeserializeObject<SharePointFolder>(documentFolderString);
+            var configRequest = new HttpRequestMessage(HttpMethod.Get, SharePointConfigListUrl);
+            var configResult = await HttpClient.SendAsync(configRequest);
+            var configString = await configResult.Content.ReadAsStringAsync();
+            var config = JsonConvert.DeserializeObject<SharePointList>(configString);
 
-            var documentRequest =
-                new HttpRequestMessage(HttpMethod.Get, documentFolder.Items[0].MicrosoftGraphDownloadUrl);
-
-
-            using var documentResult = await HttpClient.SendAsync(documentRequest);
-            documentData = await documentResult.Content.ReadAsByteArrayAsync();
-
-            ReloadInfoItems(documentData);
+            ReloadInfoItems(config);
         }
 
-        private static void ReloadInfoItems(byte[] documentData)
+        private static void ReloadInfoItems(SharePointList config)
         {
-            using var excelReader = ExcelReaderFactory.CreateReader(new MemoryStream(documentData));
-            var document = excelReader.AsDataSet();
+            InfoItems.Clear();
 
-            _infoItems.Clear();
-
-            foreach (DataTable table in document.Tables)
+            foreach (var configItem in config.Values)
             {
-                foreach (DataRow dataRow in table.Rows)
+                InfoItems.Add(new Info.InfoItem
                 {
-                    _infoItems.Add(new Info.InfoItem
-                    {
-                        InteractionValue = dataRow.ItemArray[0].ToString(),
-                        ResponseText = dataRow.ItemArray[1].ToString()
-                    });
-                }
+                    InteractionValue = configItem.Fields.Title,
+                    ResponseText = configItem.Fields.ResponseText
+                });
             }
         }
     }
@@ -101,14 +78,21 @@ namespace VariantBot.Slack
         [JsonProperty("access_token")] public string Token { get; set; }
     }
 
-    public class SharePointFolder
+    public class SharePointList
     {
-        [JsonProperty("value")] public Item[] Items { get; set; }
+        [JsonProperty("value")] public Value[] Values { get; set; }
     }
 
-    public class Item
+    public class Value
     {
-        [JsonProperty("@microsoft.graph.downloadUrl")]
-        public Uri MicrosoftGraphDownloadUrl { get; set; }
+        [JsonProperty("fields")] public Fields Fields { get; set; }
+    }
+
+
+    public class Fields
+    {
+        [JsonProperty("Title")] public string Title { get; set; }
+
+        [JsonProperty("gesj")] public string ResponseText { get; set; }
     }
 }
