@@ -28,17 +28,26 @@ namespace VariantBot.Controllers
                 case "/info":
                 case "/hjelp":
                 {
-                    if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
+                    try
                     {
-                        await Info.SendInteractionResponse(slackCommandFormBody.Text, slackCommandFormBody.ResponseUrl);
-
                         return Ok();
                     }
+                    finally
+                    {
+                        Response.OnCompleted(async () =>
+                        {
+                            if (!string.IsNullOrWhiteSpace(slackCommandFormBody.Text))
+                            {
+                                await Info.SendInteractionResponse(slackCommandFormBody.Text,
+                                    slackCommandFormBody.ResponseUrl);
+                                return;
+                            }
 
-                    var infoCommandMessage = await SlackMessage.CreateInfoCommandMessage();
-                    var jsonContent = JsonConvert.SerializeObject(infoCommandMessage);
-                    await SlackMessage.Post(jsonContent, slackCommandFormBody.ResponseUrl);
-                    return Ok();
+                            var infoCommandMessage = await SlackMessage.CreateInfoCommandMessage();
+                            var jsonContent = JsonConvert.SerializeObject(infoCommandMessage);
+                            await SlackMessage.Post(jsonContent, slackCommandFormBody.ResponseUrl);
+                        });
+                    }
                 }
             }
 
