@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace VariantBot.Slack
@@ -20,6 +21,9 @@ namespace VariantBot.Slack
         {
             var responseString = string.Empty;
 
+            if (!Config.DirectInfoTriggers.Any())
+                await Config.LoadConfigFromSharePoint();
+            
             if (!Config.DirectInfoTriggers.ContainsKey(interactionValue.ToLower()))
                 responseString += $"Kjenner ikke til \"{interactionValue}\", dessverre :sweat_smile:";
             else
