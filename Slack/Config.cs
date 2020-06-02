@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace VariantBot.Slack
 {
@@ -16,6 +18,7 @@ namespace VariantBot.Slack
         private static readonly HttpClient HttpClient = new HttpClient();
 
         public static readonly List<Info.InfoItem> InfoItems = new List<Info.InfoItem>();
+        public static readonly Dictionary<string, string> DirectInfoTriggers = new Dictionary<string, string>();
 
         public static async Task LoadConfigFromSharePoint()
         {
@@ -61,14 +64,22 @@ namespace VariantBot.Slack
         private static void ReloadInfoItems(SharePointList config)
         {
             InfoItems.Clear();
-
+            DirectInfoTriggers.Clear();
+            
             foreach (var configItem in config.Values)
             {
-                InfoItems.Add(new Info.InfoItem
+                var item = new Info.InfoItem()
                 {
                     InteractionValue = configItem.Fields.Title,
                     ResponseText = configItem.Fields.ResponseText
-                });
+                };
+                
+                DirectInfoTriggers.Add(item.InteractionValue.ToLower(), item.ResponseText);
+
+                foreach (var directTrigger in configItem.Fields.DirectTriggers)
+                    DirectInfoTriggers.Add(directTrigger.ToLower(), item.ResponseText);
+                
+                InfoItems.Add(item);
             }
         }
     }
@@ -94,5 +105,29 @@ namespace VariantBot.Slack
         [JsonProperty("Title")] public string Title { get; set; }
 
         [JsonProperty("gesj")] public string ResponseText { get; set; }
+
+        [JsonProperty("Direktetrigger")]
+        [JsonConverter(typeof(DirectTriggersConverter))]
+        public List<string> DirectTriggers { get; set; }
+    }
+
+    internal class DirectTriggersConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value);
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            var token = JToken.Load(reader);
+            var value = token.Value<string>();
+            return value.Split(" ").ToList();
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(string);
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace VariantBot.Slack
@@ -20,29 +19,26 @@ namespace VariantBot.Slack
             string url, string channelId = null, string userId = null)
         {
             var responseString = string.Empty;
-            var infoItem = Config.InfoItems
-                .FirstOrDefault(infoItem =>
-                    infoItem.InteractionValue.Equals(interactionValue, StringComparison.OrdinalIgnoreCase));
 
-            if (infoItem == null)
+            if (!Config.DirectInfoTriggers.ContainsKey(interactionValue.ToLower()))
                 responseString += $"Kjenner ikke til \"{interactionValue}\", dessverre :sweat_smile:";
-            else if (interactionValue.Equals("Slack-theme"))
+            else
             {
-                // Slack-theme is special, it needs to be sent as a PM in order 
-                // for Slack to display a button that changes theme automatically
-                // We also send a response to the channel /info was called from 
-                // explaining this. The text used is the "SlackTheme" text in this class
-                if (interactionValue.Equals("Slack-theme"))
+                responseString = Config.DirectInfoTriggers[interactionValue.ToLower()];
+
+                if (interactionValue.Equals("Slack-theme", StringComparison.OrdinalIgnoreCase))
                 {
+                    // Slack-theme is special, it needs to be sent as a PM in order 
+                    // for Slack to display a button that changes theme automatically
+                    // We also send a response to the channel /info was called from 
+                    // explaining this. The text used is the "SlackTheme" text in this class
                     await SlackMessage.Post(
-                        $"{{\"channel\": \"{userId}\",\"text\": \"{infoItem.ResponseText}\"}}",
+                        $"{{\"channel\": \"{userId}\",\"text\": \"{responseString}\"}}",
                         "https://slack.com/api/chat.postMessage");
 
                     responseString += SlackTheme;
                 }
             }
-            else
-                responseString += infoItem.ResponseText;
 
             await SlackMessage.PostSimpleTextMessage(responseString, url, channelId, userId);
         }
