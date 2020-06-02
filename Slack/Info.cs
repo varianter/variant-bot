@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace VariantBot.Slack
 {
@@ -23,25 +24,33 @@ namespace VariantBot.Slack
 
             if (!Config.DirectInfoTriggers.Any())
                 await Config.LoadConfigFromSharePoint();
-            
+
             if (!Config.DirectInfoTriggers.ContainsKey(interactionValue.ToLower()))
-                responseString += $"Kjenner ikke til \"{interactionValue}\", dessverre :sweat_smile:";
-            else
             {
-                responseString = Config.DirectInfoTriggers[interactionValue.ToLower()];
+                responseString += $"Kjenner ikke til \"{interactionValue}\", dessverre :sweat_smile:";
+                await SlackMessage.PostSimpleTextMessage(responseString, url, channelId, userId);
+ 
+                // Invalid direct trigger has been used, preempt by sending /info response
+                var infoCommandMessage = await SlackMessage.CreateInfoCommandMessage();
+                var jsonContent = JsonConvert.SerializeObject(infoCommandMessage);
+                await SlackMessage.Post(jsonContent, url);
 
-                if (interactionValue.Equals("Slack-theme", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Slack-theme is special, it needs to be sent as a PM in order 
-                    // for Slack to display a button that changes theme automatically
-                    // We also send a response to the channel /info was called from 
-                    // explaining this. The text used is the "SlackTheme" text in this class
-                    await SlackMessage.Post(
-                        $"{{\"channel\": \"{userId}\",\"text\": \"{responseString}\"}}",
-                        "https://slack.com/api/chat.postMessage");
+                return;
+            }
 
-                    responseString += SlackTheme;
-                }
+            responseString = Config.DirectInfoTriggers[interactionValue.ToLower()];
+
+            if (interactionValue.Equals("Slack-theme", StringComparison.OrdinalIgnoreCase))
+            {
+                // Slack-theme is special, it needs to be sent as a PM in order 
+                // for Slack to display a button that changes theme automatically
+                // We also send a response to the channel /info was called from 
+                // explaining this. The text used is the "SlackTheme" text in this class
+                await SlackMessage.Post(
+                    $"{{\"channel\": \"{userId}\",\"text\": \"{responseString}\"}}",
+                    "https://slack.com/api/chat.postMessage");
+
+                responseString += SlackTheme;
             }
 
             await SlackMessage.PostSimpleTextMessage(responseString, url, channelId, userId);
