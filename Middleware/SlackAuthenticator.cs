@@ -66,24 +66,6 @@ namespace VariantBot.Middleware
             var requestBody = await reader.ReadToEndAsync();
             context.Request.Body.Position = 0;
 
-            // AppServiceClientSecret is added to the request from the Logic App on Azure 
-            // that checks for changes in the /info config file that lives on SharePoint
-            if (!string.IsNullOrWhiteSpace(requestBody) && requestBody.Contains("AppServiceClientSecret"))
-            {
-                var parsedRequestBody = JObject.Parse(requestBody);
-                var slackSigningSecret = parsedRequestBody["AppServiceClientSecret"].Value<string>();
-                if (slackSigningSecret.Equals(
-                    Environment.GetEnvironmentVariable("VARIANT_BOT_CLIENT_SECRET")))
-                {
-                    await next(context);
-                    return;
-                }
-
-                context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
-                await context.Response.WriteAsync("Unauthorized");
-                return;
-            }
-
             if (!await RequestHasValidSignature(context.Request, requestBody))
             {
                 context.Response.Clear();
