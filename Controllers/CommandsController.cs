@@ -40,21 +40,6 @@ namespace VariantBot.Controllers
                     await SlackMessage.Post(jsonContent, slackCommandFormBody.ResponseUrl);
                     return Ok();
                 }
-                
-                case "/reload":
-                {
-                    try
-                    {
-                        return Ok();
-                    }
-                    finally
-                    {
-                        Response.OnCompleted(async () =>
-                        {
-                            await Config.LoadConfigFromSharePoint();
-                        });
-                    }
-                }
             }
 
             return BadRequest();
