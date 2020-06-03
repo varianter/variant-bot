@@ -25,14 +25,13 @@ namespace VariantBot.Controllers
 
             var jsonPayload = JObject.Parse(slackInteractionFormBody.Payload);
             var interactionValue = jsonPayload["actions"][0]["value"].Value<string>();
-            var userId = jsonPayload["user"]["id"].Value<string>();
-            var channelId = jsonPayload["channel"]["id"].Value<string>();
+            var responseUrl = jsonPayload["response_url"].Value<string>();
 
             if (string.IsNullOrWhiteSpace(interactionValue))
                 return BadRequest();
 
             await Info.SendInteractionResponse(interactionValue,
-                "https://slack.com/api/chat.postEphemeral", channelId, userId);
+                responseUrl);
 
             return Ok();
         }

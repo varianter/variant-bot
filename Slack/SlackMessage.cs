@@ -22,6 +22,7 @@ namespace VariantBot.Slack
                     Environment.GetEnvironmentVariable("VARIANT_SLACK_OAUTH_ACCESS_TOKEN"));
         }
 
+        [JsonProperty("replace_original")] public bool ReplaceOriginalMessage => false;
         [JsonProperty("channel")] public string Channel { get; set; }
 
         [JsonProperty("user")] public string User { get; set; }
