@@ -22,7 +22,7 @@ namespace VariantBot.Controllers
         public async Task<IActionResult> PostAsync([FromBody] SlackEventBody eventBody)
         {
             _logger.LogDebug("New message from Slack");
-            _slackMessageHandler.HandleMessage(eventBody); 
+            await _slackMessageHandler.HandleMessage(eventBody); 
             return Ok();
         }
 
