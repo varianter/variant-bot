@@ -18,7 +18,7 @@ namespace VariantBot.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromForm] SlackCommandFormBody slackCommandFormBody)
+        public IActionResult PostAsync([FromForm] SlackCommandFormBody slackCommandFormBody)
         {
             if (string.IsNullOrWhiteSpace(slackCommandFormBody.Command))
                 return BadRequest();
