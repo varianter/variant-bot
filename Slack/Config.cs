@@ -76,8 +76,9 @@ namespace VariantBot.Slack
                 
                 DirectInfoTriggers.Add(item.InteractionValue.ToLower(), item.ResponseText);
 
-                foreach (var directTrigger in configItem.Fields.DirectTriggers)
-                    DirectInfoTriggers.Add(directTrigger.ToLower(), item.ResponseText);
+                if(configItem.Fields.DirectTriggers != null)
+                    foreach (var directTrigger in configItem.Fields.DirectTriggers)
+                        DirectInfoTriggers.Add(directTrigger.ToLower(), item.ResponseText);
                 
                 InfoItems.Add(item);
             }
