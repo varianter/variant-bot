@@ -13,7 +13,7 @@ namespace VariantBot.Middleware
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
     public class SlackAuthenticator : IMiddleware
     {
-        private static async Task<bool> RequestHasValidSignature(HttpRequest request, string requestBody)
+        private static bool RequestHasValidSignature(HttpRequest request, string requestBody)
         {
             string slackSignatureHeader = request.Headers["X-Slack-Signature"];
             if (string.IsNullOrWhiteSpace(slackSignatureHeader))
@@ -66,7 +66,7 @@ namespace VariantBot.Middleware
             var requestBody = await reader.ReadToEndAsync();
             context.Request.Body.Position = 0;
 
-            if (!await RequestHasValidSignature(context.Request, requestBody))
+            if (!RequestHasValidSignature(context.Request, requestBody))
             {
                 context.Response.Clear();
                 context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
