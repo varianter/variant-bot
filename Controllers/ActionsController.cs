@@ -30,6 +30,13 @@ namespace VariantBot.Controllers
             if (string.IsNullOrWhiteSpace(interactionValue))
                 return BadRequest();
 
+            if (interactionValue.StartsWith(InteractionValueConstants.NewsletterUrlConfirmation))
+            {
+                await SlackMessage.PostSimpleTextMessage($"Show dialog here, URL I got was {interactionValue}",
+                    responseUrl, null, null);
+                return Ok();
+            }
+
             await Info.SendInteractionResponse(interactionValue,
                 responseUrl);
 

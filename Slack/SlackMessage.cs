@@ -74,9 +74,10 @@ namespace VariantBot.Slack
             };
         }
 
-        public static SlackMessage CreateNewsletterUrlMessage(string channelId,
-            string userId)
+        public static SlackMessage CreateNewsletterUrlConfirmationMessage(string channelId,
+            string userId, IEnumerable<string> urls)
         {
+            var interactionValue = $"{InteractionValueConstants.NewsletterUrlConfirmation} {string.Join(" ", urls)}";
             return new SlackMessage
             {
                 Channel = channelId,
@@ -106,7 +107,7 @@ namespace VariantBot.Slack
                                     Type = "plain_text",
                                     TextText = "Make it so"
                                 },
-                                Value = "URL values go here"
+                                Value = interactionValue
                             }
                         }
                     }
