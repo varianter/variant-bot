@@ -19,6 +19,7 @@ namespace VariantBot.Controllers
             _slackMessageHandler = slackMessageHandler;
         }
 
+        [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] SlackEventBody eventBody)
         {
             _logger.LogDebug("New message from Slack");

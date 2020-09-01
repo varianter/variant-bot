@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using MoreLinq.Extensions;
+using MoreLinq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -26,6 +26,8 @@ namespace VariantBot.Slack
         [JsonProperty("channel")] public string Channel { get; set; }
 
         [JsonProperty("user")] public string User { get; set; }
+        [JsonProperty("ts")] public string Timestamp { get; set; }
+        [JsonProperty("text")] public string Text { get; set; }
 
         [JsonProperty("blocks")] public List<Block> Blocks { get; set; }
 
@@ -51,6 +53,17 @@ namespace VariantBot.Slack
                 throw new Exception(
                     $"Failed to send ephemeral Slack message, response status code was: '{result.StatusCode}'. Message body: '{resultString}'");
             }
+        }
+
+        public static async Task<string> GetAllMessages(string channelId)
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"https://slack.com/api/conversations.history?channel={channelId}&pretty=1");
+
+            using var result = await HttpClient.SendAsync(httpRequest);
+
+            var resultString = await result.Content.ReadAsStringAsync();
+
+            return resultString;
         }
 
         private static SlackMessage CreateSimpleTextMessage(string text, string channelId, string userId)
@@ -169,6 +182,7 @@ namespace VariantBot.Slack
                 Value = infoItem.InteractionValue
             };
         }
+
     }
 
     public class Block
@@ -222,7 +236,7 @@ namespace VariantBot.Slack
             var token = JToken.Load(reader);
             if (token.Type == JTokenType.String)
             {
-                return new Text {TextText = token.Value<string>()};
+                return new Text { TextText = token.Value<string>() };
             }
 
             return token.ToObject<Text>();
