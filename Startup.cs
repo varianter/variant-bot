@@ -34,7 +34,8 @@ namespace VariantBot
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
 
-            app.UseMiddleware<SlackAuthenticator>()
+            app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"),
+                    app => app.UseMiddleware<SlackAuthenticator>())
                 .UseDefaultFiles()
                 .UseStaticFiles()
                 .UseWebSockets()
