@@ -26,7 +26,8 @@ namespace VariantBot
 
             services.AddTransient<SlackAuthenticator>();
             services.AddTransient<SlackMessageHandler, SlackMessageHandler>();
-            services.AddHostedService<SlackMusicRecommendations>();
+            services.AddSingleton<MusicRecommendationService>();
+            services.AddHostedService<SlackMessageHistoryService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
