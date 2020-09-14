@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using VariantBot.Slack;
 
@@ -15,19 +17,25 @@ namespace VariantBot.Services
     {
         private ILogger<SlackMessageHistoryService> _logger;
         private readonly MusicRecommendationService _musicRecommendationService;
-        private const string MusicChannelId = "C012Z37M1P1";
+        private readonly IOptions<List<SlackChannel>> _channels;
 
         public SlackMessageHistoryService(ILogger<SlackMessageHistoryService> logger,
-            MusicRecommendationService musicRecommendationService)
+            MusicRecommendationService musicRecommendationService, IOptions<List<SlackChannel>> channels)
         {
             _logger = logger;
             _musicRecommendationService = musicRecommendationService;
+            _channels = channels;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            var allMessages = await SlackMessage.GetAllMessages(MusicChannelId);
-            var parsedResult = JObject.Parse(allMessages);
+            _channels.Value.ForEach(async slackChannel =>
+            {
+                var allMessages = await SlackMessage.GetAllMessages(slackChannel.ChannelId);
+                var parsedResult = JObject.Parse(allMessages);
+                
+                // pass result to correct service
+            });
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VariantBot.Services;
@@ -12,6 +14,11 @@ namespace VariantBot
 {
     public class Startup
     {
+        private readonly IConfiguration Configuration;
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
         public void ConfigureServices(IServiceCollection services)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -24,6 +31,8 @@ namespace VariantBot
 
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
+            services.Configure<List<SlackChannel>>(Configuration.GetSection("SlackChannels"));
+            
             services.AddTransient<SlackAuthenticator>();
             services.AddTransient<SlackMessageHandler, SlackMessageHandler>();
             services.AddSingleton<MusicRecommendationService>();
