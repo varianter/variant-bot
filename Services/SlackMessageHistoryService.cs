@@ -9,7 +9,7 @@ using VariantBot.Slack;
 
 namespace VariantBot.Services
 {
-    
+
     /// <summary>
     /// Fetches all messages since last time the bot ran
     /// </summary>
@@ -33,8 +33,8 @@ namespace VariantBot.Services
             {
                 var allMessages = await SlackMessage.GetAllMessages(slackChannel.ChannelId);
                 var parsedResult = JObject.Parse(allMessages);
-                
-                // pass result to correct service
+
+                _musicRecommendationService.HandleMessages(parsedResult);
             });
         }
 

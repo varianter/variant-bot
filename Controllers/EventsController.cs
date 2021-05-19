@@ -23,7 +23,7 @@ namespace VariantBot.Controllers
         public async Task<IActionResult> PostAsync([FromBody] SlackEventBody eventBody)
         {
             _logger.LogDebug("New message from Slack");
-            await _slackMessageHandler.HandleMessage(eventBody); 
+            await _slackMessageHandler.HandleMessage(eventBody);
             return Ok();
         }
 
@@ -34,6 +34,9 @@ namespace VariantBot.Controllers
         }
         public class Event
         {
+            [JsonProperty("ts")]
+            public string Timestamp { get; set; }
+
             [JsonProperty("type")]
             public string Type { get; set; }
 

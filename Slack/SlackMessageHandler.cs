@@ -4,15 +4,18 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VariantBot.Controllers;
+using VariantBot.Services;
 
 namespace VariantBot.Slack
 {
     public class SlackMessageHandler
     {
         private readonly ILogger<SlackMessageHandler> _logger;
+        private readonly MusicRecommendationService _musicRecommendationService;
 
-        public SlackMessageHandler(ILogger<SlackMessageHandler> logger)
+        public SlackMessageHandler(ILogger<SlackMessageHandler> logger, MusicRecommendationService musicRecommendationService)
         {
+            _musicRecommendationService = musicRecommendationService;
             _logger = logger;
         }
 
@@ -20,22 +23,34 @@ namespace VariantBot.Slack
         {
             _logger.LogDebug("New message from Slack");
 
+            // Split into per channel handling
+            if (slackEventBody.Event.Channel.Equals("C012Z37M1P1")) // check for name "music"
+            {
+                await _musicRecommendationService.HandleMessage(
+                    slackEventBody.Event.User,
+                    slackEventBody.Event.Text,
+                    slackEventBody.Event.Timestamp
+                );
+
+                return;
+            }
+
             try
             {
-                var urls = slackEventBody.Event.Blocks 
+                var urls = slackEventBody.Event.Blocks
                     .Where(block => block.Type.Equals("rich_text"))
-                    .SelectMany(block => block.Elements, (block, blockElement) => new {block, blockElement})
+                    .SelectMany(block => block.Elements, (block, blockElement) => new { block, blockElement })
                     .Where(@t => @t.blockElement.Type.Equals("rich_text_section"))
-                    .SelectMany(@t => @t.blockElement.Elements, (@t, element) => new {@t, element})
+                    .SelectMany(@t => @t.blockElement.Elements, (@t, element) => new { @t, element })
                     .Where(@t => @t.element.Type.Equals("link"))
                     .Select(@t => @t.element.Url).ToList();
-                
+
                 if (!urls.Any())
                     return;
 
                 var userId = slackEventBody.Event.User;
-                var channelId = slackEventBody.Event.Channel; 
-                
+                var channelId = slackEventBody.Event.Channel;
+
                 var jsonContent = JsonConvert.SerializeObject(SlackMessage.CreateNewsletterUrlConfirmationMessage(channelId, userId, urls));
                 await SlackMessage.Post(jsonContent,
                     "https://slack.com/api/chat.postEphemeral");
