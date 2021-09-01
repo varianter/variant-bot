@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MoreLinq.Extensions;
@@ -13,11 +14,14 @@ namespace VariantBot.Services
     public class MusicRecommendationService
     {
         private readonly ILogger<MusicRecommendationService> _logger;
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private readonly string _musicAppFunctionUrl;
+        private static readonly HttpClient HttpClient = new();
 
-        public MusicRecommendationService(ILogger<MusicRecommendationService> logger)
+        public MusicRecommendationService(ILogger<MusicRecommendationService> logger,
+            IOptions<MusicRecommendationAppConfig> musicAppConfig)
         {
             _logger = logger;
+            _musicAppFunctionUrl = musicAppConfig.Value.URL;
         }
 
         public async Task HandleMessage(string user, string text, string timestamp)
@@ -37,29 +41,43 @@ namespace VariantBot.Services
             await SendMusicRecommendation(musicRecommendation);
         }
 
-        public void HandleMessages(JObject messages)
+        public void HandleMessages(JToken messages)
         {
             var musicRecommendations = new List<MusicRecommendation>();
-
-            messages["messages"].ForEach(message =>
+            try
             {
-                try
+                messages.ForEach(message =>
                 {
-                    var text = message["text"].Value<string>();
-                    var userId = message["user"].Value<string>();
+                    var botId = message["bot_id"]?.Value<string>();
+                    if (botId is not null)
+                        return;
+                    
+                    var text = message["text"]?.Value<string>();
+                    var userId = message["user"]?.Value<string>();
+                    var timestamp = message["ts"]?.Value<string>();
+
+                    if (!string.IsNullOrEmpty(timestamp) &&timestamp.Contains("."))
+                    {
+                        timestamp = timestamp.Split(".")[0];
+                    }
 
                     var musicRecommendation = new MusicRecommendation
                     {
                         User = userId,
-                        Timestamp = message["ts"].Value<string>(),
+                        Timestamp = timestamp,
                         Text = text,
                     };
 
                     musicRecommendations.Add(musicRecommendation);
-                }
-                catch (Exception) { }
-            });
-
+                });
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Music recommendation parsing failed");
+            }
+            
+            
             musicRecommendations.ForEach(async musicRecommendation =>
             {
                 await SendMusicRecommendation(musicRecommendation);
@@ -68,11 +86,14 @@ namespace VariantBot.Services
 
         private async Task SendMusicRecommendation(MusicRecommendation musicRecommendation)
         {
-            var functionUrl = "";
+            _logger.LogInformation($"Sending new music recommendation: {musicRecommendation.Text}");
 
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, functionUrl)
+            var json = JsonConvert.SerializeObject(musicRecommendation);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, _musicAppFunctionUrl)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(musicRecommendation), Encoding.UTF8, "application/json")
+                Content = content
             };
 
             using var result = await HttpClient.SendAsync(httpRequest);
@@ -81,7 +102,7 @@ namespace VariantBot.Services
 
             if (!result.IsSuccessStatusCode)
             {
-                _logger.LogDebug(resultString);
+                _logger.LogError($"Music recommendation app call failed: {resultString}");
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using VariantBot.Slack;
@@ -20,6 +19,8 @@ namespace VariantBot.Controllers
         [HttpPost]
         public IActionResult PostAsync([FromForm] SlackCommandFormBody slackCommandFormBody)
         {
+            _logger.LogInformation($"Received command: {slackCommandFormBody.Command}");
+            
             if (string.IsNullOrWhiteSpace(slackCommandFormBody.Command))
                 return BadRequest();
 

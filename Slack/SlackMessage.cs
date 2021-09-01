@@ -13,7 +13,7 @@ namespace VariantBot.Slack
 {
     public class SlackMessage
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient = new();
 
         static SlackMessage()
         {
@@ -51,13 +51,17 @@ namespace VariantBot.Slack
                 (!resultString.Contains("\"ok\":true") && !resultString.Contains("ok")))
             {
                 throw new Exception(
-                    $"Failed to send ephemeral Slack message, response status code was: '{result.StatusCode}'. Message body: '{resultString}'");
+                    $"Failed to send Slack message, response status code was: '{result.StatusCode}'. Message body: '{resultString}'");
             }
         }
 
-        public static async Task<string> GetAllMessages(string channelId)
+        public static async Task<string> GetAllMessages(string channelId, string cursor = "")
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"https://slack.com/api/conversations.history?channel={channelId}&pretty=1");
+            var requestUri = $"https://slack.com/api/conversations.history?channel={channelId}&pretty=1";
+            if (!string.IsNullOrEmpty(cursor))
+                requestUri += $"&cursor={cursor}";
+            
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
             using var result = await HttpClient.SendAsync(httpRequest);
 

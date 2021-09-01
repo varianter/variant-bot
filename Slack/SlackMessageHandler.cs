@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using VariantBot.Controllers;
 using VariantBot.Services;
@@ -12,10 +14,14 @@ namespace VariantBot.Slack
     {
         private readonly ILogger<SlackMessageHandler> _logger;
         private readonly MusicRecommendationService _musicRecommendationService;
+        private readonly List<SlackChannel> _slackChannels;
 
-        public SlackMessageHandler(ILogger<SlackMessageHandler> logger, MusicRecommendationService musicRecommendationService)
+        public SlackMessageHandler(ILogger<SlackMessageHandler> logger,
+            MusicRecommendationService musicRecommendationService,
+            IOptions<List<SlackChannel>> slackChannels)
         {
             _musicRecommendationService = musicRecommendationService;
+            _slackChannels = slackChannels.Value;
             _logger = logger;
         }
 
@@ -23,8 +29,7 @@ namespace VariantBot.Slack
         {
             _logger.LogDebug("New message from Slack");
 
-            // Split into per channel handling
-            if (slackEventBody.Event.Channel.Equals("C012Z37M1P1")) // check for name "music"
+            if(_slackChannels.Any(chan => slackEventBody.Event.Channel.Equals(chan.ChannelId)))
             {
                 await _musicRecommendationService.HandleMessage(
                     slackEventBody.Event.User,

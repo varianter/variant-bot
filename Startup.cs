@@ -32,6 +32,7 @@ namespace VariantBot
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
             services.Configure<List<SlackChannel>>(Configuration.GetSection("SlackChannels"));
+            services.Configure<MusicRecommendationAppConfig>(Configuration.GetSection("MusicRecommendationAppConfig"));
             
             services.AddTransient<SlackAuthenticator>();
             services.AddTransient<SlackMessageHandler, SlackMessageHandler>();
