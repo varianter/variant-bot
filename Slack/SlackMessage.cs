@@ -13,7 +13,7 @@ namespace VariantBot.Slack
 {
     public class SlackMessage
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient = new();
 
         static SlackMessage()
         {
@@ -37,10 +37,10 @@ namespace VariantBot.Slack
 
         public static async Task Post(string jsonContent, string url)
         {
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
-            {
-                Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
-            };
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
+
+            if (!string.IsNullOrEmpty(jsonContent))
+                httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             using var result = await HttpClient.SendAsync(httpRequest);
             var resultString = await result.Content.ReadAsStringAsync();
