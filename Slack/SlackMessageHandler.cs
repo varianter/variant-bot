@@ -57,8 +57,8 @@ namespace VariantBot.Slack
                 var channelId = slackEventBody.Event.Channel;
 
                 var jsonContent = JsonConvert.SerializeObject(SlackMessage.CreateNewsletterUrlConfirmationMessage(channelId, userId, urls));
-                await SlackMessage.Post(jsonContent,
-                    "https://slack.com/api/chat.postEphemeral");
+                // await SlackMessage.Post(jsonContent,
+                //     "https://slack.com/api/chat.postEphemeral");
             }
             catch (Exception e)
             {
