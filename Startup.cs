@@ -39,7 +39,7 @@ namespace VariantBot
             services.AddTransient<SlackAuthenticator>();
             services.AddTransient<SlackMessageHandler, SlackMessageHandler>();
             services.AddSingleton<MusicRecommendationService>();
-            services.AddHostedService<SlackMessageHistoryService>();
+            // services.AddHostedService<SlackMessageHistoryService>();
 
 
             services.AddHangfire(config =>
@@ -53,10 +53,10 @@ namespace VariantBot
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
-            app.UseHangfireDashboard();
 
             app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"),
                     app => app.UseMiddleware<SlackAuthenticator>())
+                .UseHangfireDashboard()
                 .UseDefaultFiles()
                 .UseStaticFiles()
                 .UseWebSockets()
@@ -66,7 +66,8 @@ namespace VariantBot
 
             BackgroundJob.Enqueue(() => KeeperAliver.DontDie());
             RecurringJob.AddOrUpdate(() => KeeperAliver.DontDie(), Cron.Minutely());
-            RecurringJob.AddOrUpdate(() => DeskBooking.PostDeskBookingDays(), Cron.Weekly(DayOfWeek.Friday, 13));
+            RecurringJob.AddOrUpdate(() => KeeperAliver.DeleteMessages(), "*/3 * * * *");
+            RecurringJob.AddOrUpdate(() => DeskBooking.PostDeskBookingDays(), Cron.Weekly(DayOfWeek.Friday, 10));
         }
     }
 }

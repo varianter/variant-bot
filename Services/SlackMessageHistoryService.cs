@@ -37,7 +37,7 @@ namespace VariantBot.Services
                     _logger.LogInformation($"Fetching old messages from channel {slackChannel.ChannelId}/{slackChannel.ChannelName}");
 
                     var cursor = string.Empty;
-                    bool? hasMore = false;
+                    bool? hasMore;
                     
                     do
                     {

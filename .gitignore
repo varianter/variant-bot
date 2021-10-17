@@ -1,3 +1,5 @@
+.vscode/
+publish/
 .idea/
 bin/
 obj/

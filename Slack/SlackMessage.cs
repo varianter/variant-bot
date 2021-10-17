@@ -50,23 +50,21 @@ namespace VariantBot.Slack
             if (!result.IsSuccessStatusCode ||
                 (!resultString.Contains("\"ok\":true") && !resultString.Contains("ok")))
             {
-                throw new Exception(
+                Console.WriteLine(
                     $"Failed to send Slack message, response status code was: '{result.StatusCode}'. Message body: '{resultString}'");
             }
         }
 
-        public static async Task<string> GetAllMessages(string channelId, string cursor = "")
+        public static async Task<string> GetAllMessages(string channelId, string cursor = "", int limit = 100)
         {
-            var requestUri = $"https://slack.com/api/conversations.history?channel={channelId}&pretty=1";
+            var requestUri = $"https://slack.com/api/conversations.history?channel={channelId}&pretty=1&limit={limit}";
             if (!string.IsNullOrEmpty(cursor))
                 requestUri += $"&cursor={cursor}";
             
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, requestUri);
-
             using var result = await HttpClient.SendAsync(httpRequest);
 
             var resultString = await result.Content.ReadAsStringAsync();
-
             return resultString;
         }
 

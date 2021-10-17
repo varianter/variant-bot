@@ -50,6 +50,20 @@ namespace VariantBot.Controllers
                         });
                     }
                 }
+                case "/deskbooking":
+                {
+                    try
+                    {
+                        return Ok();
+                    }
+                    finally
+                    {
+                        Response.OnCompleted(async () =>
+                        {
+                            await DeskBooking.PostDeskBookingDays();
+                        });
+                    }
+                }
             }
 
             return BadRequest();
